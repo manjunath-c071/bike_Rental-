@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Bikes - RideNova Admin{% endblock %}
+
+{% load static %}
+
+{% block extra_head %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-motorcycle"></i> Manage Bikes
+        </h1>
+        <div>
+            <button id="add-bike-btn" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Bike
+            </button>
+            <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Name, brand, model..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">City</label>
+                    <select name="city" class="form-select">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                            <option value="{{ city }}" {% if city == current_city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Type</label>
+                    <select name="bike_type" class="form-select">
+                        <option value="">All Types</option>
+                        {% for value, label in bike_types %}
+                            <option value="{{ value }}" {% if value == current_type %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Availability</label>
+                    <select name="availability" class="form-select">
+                        <option value="">All</option>
+                        <option value="available" {% if current_availability == 'available' %}selected{% endif %}>Available</option>
+                        <option value="unavailable" {% if current_availability == 'unavailable' %}selected{% endif %}>Unavailable</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <small class="text-muted">Showing <strong>{{ bikes.paginator.count }}</strong> total bikes. Double-click cells to edit inline.</small>
+        </div>
+    </div>
+
+    <!-- Bikes Table -->
+    {% if bikes %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Bike Name</th>
+                        <th>Type</th>
+                        <th>City</th>
+                        <th>Daily Rate</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bike in bikes %}
+                        <tr>
+                            <td class="editable-cell" data-bike-id="{{ bike.id }}" data-field="name" data-original-value="{{ bike.name }}">
+                                {{ bike.name }}
+                            </td>
+                            <td class="editable-cell" data-bike-id="{{ bike.id }}" data-field="bike_type" data-original-value="{{ bike.get_bike_type_display }}">
+                                {{ bike.get_bike_type_display }}
+                            </td>
+                            <td class="editable-cell" data-bike-id="{{ bike.id }}" data-field="location" data-original-value="{{ bike.location.name }}">
+                                {{ bike.location.name }}
+                            </td>
+                            <td class="editable-cell" data-bike-id="{{ bike.id }}" data-field="rental_price_daily" data-input-type="number" data-original-value="₹{{ bike.rental_price_daily }}">
+                                ₹{{ bike.rental_price_daily }}
+                            </td>
+                            <td>
+                                {% if bike.is_available %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle"></i> Available
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle"></i> Unavailable
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn btn-sm btn-outline-danger delete-bike-btn" data-bike-id="{{ bike.id }}" data-bike-name="{{ bike.name }}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if bikes.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if bikes.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{%if current_city %}&city={{ current_city }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ bikes.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_city %}&city={{ current_city }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">{{ bikes.number }} of {{ bikes.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if bikes.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ bikes.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_city %}&city={{ current_city }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ bikes.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_city %}&city={{ current_city }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> No bikes found. <a href="#" id="add-bike-btn">Create a new bike</a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Bike Modal -->
+<div class="modal fade" id="addBikeModal" tabindex="-1" aria-labelledby="addBikeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBikeModalLabel">Add New Bike</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="add-bike-form" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label">Bike Name *</label>
+                                <input type="text" class="form-control" id="id_name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_brand" class="form-label">Brand *</label>
+                                <input type="text" class="form-control" id="id_brand" name="brand" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_model" class="form-label">Model *</label>
+                                <input type="text" class="form-control" id="id_model" name="model" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_year" class="form-label">Year *</label>
+                                <input type="number" class="form-control" id="id_year" name="year" min="2000" max="2025" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_bike_type" class="form-label">Type *</label>
+                                <select class="form-control" id="id_bike_type" name="bike_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="MTB">Mountain Bike</option>
+                                    <option value="Road">Road Bike</option>
+                                    <option value="Hybrid">Hybrid Bike</option>
+                                    <option value="Cruiser">Cruiser Bike</option>
+                                    <option value="BMX">BMX Bike</option>
+                                    <option value="Electric">Electric Bike</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_city" class="form-label">City *</label>
+                                <select class="form-control" id="id_city" name="city" required>
+                                    <option value="">Select City</option>
+                                    <option value="Delhi">Delhi</option>
+                                    <option value="Mumbai">Mumbai</option>
+                                    <option value="Bangalore">Bangalore</option>
+                                    <option value="Hyderabad">Hyderabad</option>
+                                    <option value="Chennai">Chennai</option>
+                                    <option value="Kolkata">Kolkata</option>
+                                    <option value="Pune">Pune</option>
+                                    <option value="Jaipur">Jaipur</option>
+                                    <option value="Lucknow">Lucknow</option>
+                                    <option value="Ahmedabad">Ahmedabad</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_rental_price_daily" class="form-label">Daily Rate (₹) *</label>
+                                <input type="number" class="form-control" id="id_rental_price_daily" name="rental_price_daily" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_image" class="form-label">Image</label>
+                                <input type="file" class="form-control" id="id_image" name="image" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_condition" class="form-label">Condition</label>
+                                <select class="form-control" id="id_condition" name="condition">
+                                    <option value="New">New</option>
+                                    <option value="Good" selected>Good</option>
+                                    <option value="Fair">Fair</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_is_available" class="form-label">Available</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="id_is_available" name="is_available" checked>
+                                    <label class="form-check-label" for="id_is_available">
+                                        Bike is available for rental
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Bike</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/admin_bikes.js' %}"></script>
+{% endblock %}

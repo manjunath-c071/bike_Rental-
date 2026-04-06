@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - RideNova{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Bookings</h2>
+
+{% if bookings %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="bg-light">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Bike</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Total Cost</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>#{{ booking.id }}</td>
+                        <td>{{ booking.bike.brand }} {{ booking.bike.model }}</td>
+                        <td>{{ booking.start_date|date:"M d, Y H:i" }}</td>
+                        <td>{{ booking.end_date|date:"M d, Y H:i" }}</td>
+                        <td>
+                            {% if booking.status == 'pending' %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% elif booking.status == 'confirmed' %}
+                                <span class="badge badge-info">Confirmed</span>
+                            {% elif booking.status == 'active' %}
+                                <span class="badge badge-success">Active</span>
+                            {% elif booking.status == 'completed' %}
+                                <span class="badge badge-primary">Completed</span>
+                            {% elif booking.status == 'cancelled' %}
+                                <span class="badge badge-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>₹{{ booking.total_cost }}</td>
+                        <td>
+                            <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                            {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                <a href="{% url 'bookings:booking_cancel' booking.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this booking?')">Cancel</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center p-5">
+        <h4>No bookings yet</h4>
+        <p>Start exploring and book a bike today!</p>
+        <a href="{% url 'bikes:bike_list' %}" class="btn btn-primary">Browse Bikes</a>
+    </div>
+{% endif %}
+{% endblock %}

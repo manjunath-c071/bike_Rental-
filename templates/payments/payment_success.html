@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment Successful - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-wrapper {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        padding: 60px 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .success-card {
+        background: white;
+        border-radius: 12px;
+        padding: 50px;
+        text-align: center;
+        max-width: 500px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: bounce 0.6s ease-out;
+    }
+
+    .success-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+
+    .success-message {
+        font-size: 1rem;
+        color: #7f8c8d;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .booking-confirmation {
+        background: #f8f9fa;
+        border-left: 4px solid #27ae60;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .confirmation-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 12px 0;
+        font-size: 0.95rem;
+    }
+
+    .confirmation-label {
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    .confirmation-value {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .confirmation-row.separator {
+        border-bottom: 1px solid #e0e0e0;
+        margin: 15px 0;
+        padding-bottom: 15px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .action-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary-success {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+    }
+
+    .btn-primary-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary-success {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-secondary-success:hover {
+        background: #bdc3c7;
+        color: #2c3e50;
+        text-decoration: none;
+    }
+
+    .timer {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .timer-text {
+        margin-top: 10px;
+    }
+
+    @keyframes bounce {
+        0% {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .success-card {
+            padding: 30px;
+            margin: 20px;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+        }
+
+        .success-title {
+            font-size: 1.4rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-wrapper">
+    <div class="success-card">
+        <!-- Success Icon -->
+        <div class="success-icon">✅</div>
+
+        <!-- Success Title -->
+        <h2 class="success-title">Payment Successful!</h2>
+
+        <!-- Success Message -->
+        <p class="success-message">
+            Your payment has been processed successfully. Your bike booking is now <strong>confirmed</strong>.
+        </p>
+
+        <!-- Booking Details -->
+        <div class="booking-confirmation">
+            <div class="confirmation-row">
+                <span class="confirmation-label">📅 Booking ID:</span>
+                <span class="confirmation-value">#{{ booking.id }}</span>
+            </div>
+            <div class="confirmation-row">
+                <span class="confirmation-label">🚲 Bike:</span>
+                <span class="confirmation-value">{{ booking.bike.name }}</span>
+            </div>
+            <div class="confirmation-row">
+                <span class="confirmation-label">⏱️ Duration:</span>
+                <span class="confirmation-value">{{ booking.total_hours|floatformat:1 }} hours</span>
+            </div>
+            <div class="confirmation-row separator">
+                <span class="confirmation-label">📍 Pickup:</span>
+                <span class="confirmation-value">{{ booking.get_pickup_location_display }}</span>
+            </div>
+            <div class="confirmation-row">
+                <span class="confirmation-label">💳 Transaction:</span>
+                <span class="confirmation-value">{{ payment.transaction_id }}</span>
+            </div>
+            <div class="confirmation-row">
+                <span class="confirmation-label">💰 Amount Paid:</span>
+                <span class="confirmation-value">₹{{ payment.amount }}</span>
+            </div>
+            <div class="confirmation-row">
+                <span class="confirmation-label">✓ Status:</span>
+                <span class="confirmation-value" style="color: #27ae60; font-weight: bold;">CONFIRMED</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'bookings:booking_detail' booking.id %}" class="action-btn btn-primary-success">
+                📖 View Booking Details
+            </a>
+            <a href="{% url 'bikes:bike_list' %}" class="action-btn btn-secondary-success">
+                🚲 Browse More Bikes
+            </a>
+        </div>
+
+        <!-- Redirect Timer Info -->
+        <div class="timer">
+            <p class="timer-text">
+                📧 A confirmation email has been sent to <strong>{{ user.email }}</strong>
+            </p>
+            <p class="timer-text">
+                ⏳ Redirecting to your booking in <span id="countdown">5</span> seconds...
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-redirect countdown
+    let countdown = 5;
+    const countdownEl = document.getElementById('countdown');
+
+    const interval = setInterval(() => {
+        countdown--;
+        countdownEl.textContent = countdown;
+
+        if (countdown <= 0) {
+            clearInterval(interval);
+            window.location.href = '{% url "bookings:booking_detail" booking.id %}';
+        }
+    }, 1000);
+
+    // Show success toast notification
+    document.addEventListener('DOMContentLoaded', () => {
+        window.roleBasedAccess?.showNotification(
+            '🎉 Booking confirmed! Your payment was successful.',
+            'success',
+            5000
+        );
+    });
+</script>
+{% endblock %}

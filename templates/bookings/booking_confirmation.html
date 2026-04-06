@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Confirmation - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-header {
+        background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .success-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: scaleIn 0.5s ease;
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+
+    .confirmation-card {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+
+    .confirmation-section {
+        margin-bottom: 30px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .confirmation-section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .booking-number {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #7f8c8d;
+        font-weight: bold;
+        min-width: 150px;
+    }
+
+    .info-value {
+        color: #2c3e50;
+        text-align: right;
+        flex-grow: 1;
+    }
+
+    .bike-info-box {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .bike-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    }
+
+    .bike-image-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        color: #bbb;
+    }
+
+    .bike-details h5 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+
+    .bike-details p {
+        margin: 5px 0;
+        color: #7f8c8d;
+    }
+
+    .price-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+        padding: 20px;
+        border-radius: 8px;
+        border: 2px solid #FF6B6B;
+    }
+
+    .price-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .price-detail:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .price-detail.total {
+        border-top: 2px solid #FF6B6B;
+        padding-top: 15px;
+        margin-top: 15px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #FF6B6B;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-primary-action {
+        flex: 1;
+        background: linear-gradient(135deg, #FF6B6B 0%, #f85555 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-primary-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        color: white;
+    }
+
+    .btn-secondary-action {
+        flex: 1;
+        background: #ecf0f1;
+        color: #2c3e50;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-secondary-action:hover {
+        background: #d9dcde;
+    }
+
+    .info-alert {
+        background: #e3f2fd;
+        border-left: 4px solid #2196F3;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        color: #1565c0;
+    }
+
+    .status-badge {
+        display: inline-block;
+        background: #FFF3CD;
+        color: #856404;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .bike-info-box {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bike-image, .bike-image-placeholder {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Success Header -->
+<div class="confirmation-header">
+    <div class="container">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1 class="mb-2">Booking Confirmed!</h1>
+        <p class="mb-0">Your bike rental booking has been successfully created</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Booking Confirmation Card -->
+            <div class="confirmation-card">
+                <!-- Booking Number -->
+                <div class="text-center mb-4">
+                    <div class="booking-number">
+                        <i class="fas fa-ticket-alt"></i> Booking #{{ booking.id }}
+                    </div>
+                    <div class="status-badge">
+                        Status: {{ booking.get_status_display|upper }}
+                    </div>
+                </div>
+
+                <!-- Bike Information Section -->
+                <div class="confirmation-section">
+                    <div class="section-title">
+                        <i class="fas fa-bicycle"></i> Your Bike
+                    </div>
+                    
+                    <div class="bike-info-box">
+                        {% if booking.bike.image %}
+                            <img src="{{ booking.bike.image.url }}" alt="{{ booking.bike.name }}" class="bike-image">
+                        {% else %}
+                            <div class="bike-image-placeholder">
+                                <i class="fas fa-bicycle"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="bike-details">
+                            <h5>{{ booking.bike.name }}</h5>
+                            <p><strong>Brand:</strong> {{ booking.bike.brand }} {{ booking.bike.model }}</p>
+                            <p><strong>Type:</strong> {{ booking.bike.get_bike_type_display }}</p>
+                            <p><strong>Location:</strong> {{ booking.bike.city }}</p>
+                            <p><strong>Year:</strong> {{ booking.bike.year }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Section -->
+                <div class="confirmation-section">
+                    <div class="section-title">
+                        <i class="fas fa-calendar-alt"></i> Booking Timeline
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Start Date & Time:</span>
+                        <span class="info-value"><strong>{{ booking.start_date|date:"M d, Y · H:i" }}</strong></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">End Date & Time:</span>
+                        <span class="info-value"><strong>{{ booking.end_date|date:"M d, Y · H:i" }}</strong></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Duration:</span>
+                        <span class="info-value"><strong>{{ booking.total_hours|floatformat:1 }} hours</strong></span>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="confirmation-section">
+                    <div class="section-title">
+                        <i class="fas fa-map-marker-alt"></i> Pickup & Return Locations
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Pickup Location:</span>
+                        <span class="info-value">
+                            <strong>{{ booking.get_pickup_location_display }}</strong>
+                            {% if booking.custom_pickup_location %}
+                                <br><small>{{ booking.custom_pickup_location }}</small>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Return Location:</span>
+                        <span class="info-value">
+                            <strong>{{ booking.get_return_location_display }}</strong>
+                            {% if booking.custom_return_location %}
+                                <br><small>{{ booking.custom_return_location }}</small>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                {% if booking.notes %}
+                    <div class="confirmation-section">
+                        <div class="section-title">
+                            <i class="fas fa-sticky-note"></i> Special Requests
+                        </div>
+                        <p>{{ booking.notes }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- Info Alert -->
+                <div class="info-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Next Steps:</strong> Please arrive at the pickup location 10 minutes before your scheduled time. You'll need to present your booking confirmation and a valid ID.
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="confirmation-card">
+                <h5 class="mb-4">
+                    <i class="fas fa-calculator"></i> Booking Summary
+                </h5>
+
+                <div class="price-box">
+                    <div class="price-detail">
+                        <span>Hourly Rate:</span>
+                        <span>₹{{ booking.hourly_rate }}</span>
+                    </div>
+
+                    <div class="price-detail">
+                        <span>Duration ({{ booking.total_hours|floatformat:1 }} hours):</span>
+                        <span>₹{{ booking.total_cost|add:booking.insurance_amount|floatformat:2 }}</span>
+                    </div>
+
+                    {% if booking.insurance_amount > 0 %}
+                        <div class="price-detail">
+                            <span>Insurance (5%):</span>
+                            <span>₹{{ booking.insurance_amount|floatformat:2 }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="price-detail total">
+                        <span>Total Amount:</span>
+                        <span>₹{{ booking.total_cost|floatformat:2 }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                    <p class="mb-1"><small><strong>Booking ID:</strong></small></p>
+                    <p class="mb-0 font-weight-bold" style="word-break: break-all;">{{ booking.id }}</p>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                    <p class="mb-1"><small><strong>Status:</strong></small></p>
+                    <p class="mb-0"><span class="status-badge">{{ booking.get_status_display|upper }}</span></p>
+                </div>
+            </div>
+
+            <!-- Booking Details Card -->
+            <div class="confirmation-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-user"></i> Your Details
+                </h5>
+                <p class="mb-1"><small class="text-muted">Name</small></p>
+                <p class="fw-bold">{{ user.get_full_name|default:user.username }}</p>
+                
+                <p class="mb-1 mt-3"><small class="text-muted">Email</small></p>
+                <p class="fw-bold">{{ user.email }}</p>
+
+                <p class="mb-1 mt-3"><small class="text-muted">Booking Date</small></p>
+                <p class="fw-bold">{{ booking.created_at|date:"M d, Y · H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="confirmation-card">
+        <div class="action-buttons">
+            <a href="{% url 'bookings:booking_list' %}" class="btn-primary-action">
+                <i class="fas fa-list"></i> View My Bookings
+            </a>
+            <a href="{% url 'bikes:bike_list' %}" class="btn-secondary-action">
+                <i class="fas fa-bicycle"></i> Browse More Bikes
+            </a>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="confirmation-card">
+        <h5 class="mb-3">
+            <i class="fas fa-question-circle"></i> Frequently Asked Questions
+        </h5>
+        
+        <div class="accordion" id="bookingFAQ">
+            <div class="card mb-2" style="border: 1px solid #ecf0f1;">
+                <div class="card-header" id="headingOne" style="background: #f8f9fa;">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne">
+                        What time should I arrive for pickup?
+                    </button>
+                </div>
+                <div id="collapseOne" class="collapse" data-parent="#bookingFAQ">
+                    <div class="card-body">
+                        Please arrive at least 10 minutes before your scheduled pickup time to complete the check-in process.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-2" style="border: 1px solid #ecf0f1;">
+                <div class="card-header" id="headingTwo" style="background: #f8f9fa;">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo">
+                        What documents do I need?
+                    </button>
+                </div>
+                <div id="collapseTwo" class="collapse" data-parent="#bookingFAQ">
+                    <div class="card-body">
+                        You'll need a valid government-issued ID and your booking confirmation. A driver's license is preferred.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="border: 1px solid #ecf0f1;">
+                <div class="card-header" id="headingThree" style="background: #f8f9fa;">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseThree">
+                        Can I cancel or modify my booking?
+                    </button>
+                </div>
+                <div id="collapseThree" class="collapse" data-parent="#bookingFAQ">
+                    <div class="card-body">
+                        Yes, you can cancel free of cost up to 2 hours before your booking starts. Modifications can be made from your bookings page.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

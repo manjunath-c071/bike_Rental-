@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit User - RideNova Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit"></i> Edit User Profile
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Personal Information -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Personal Information</legend>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                    {{ profile_form.first_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                    {{ profile_form.last_name }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ profile_form.email.id_for_label }}" class="form-label">Email</label>
+                                {{ profile_form.email }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label">{{ profile_form.phone_number.label }}</label>
+                                    {{ profile_form.phone_number }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">{{ profile_form.date_of_birth.label }}</label>
+                                    {{ profile_form.date_of_birth }}
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Address Information -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Address</legend>
+
+                            <div class="mb-3">
+                                <label for="{{ profile_form.address.id_for_label }}" class="form-label">{{ profile_form.address.label }}</label>
+                                {{ profile_form.address }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.city.id_for_label }}" class="form-label">{{ profile_form.city.label }}</label>
+                                    {{ profile_form.city }}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ profile_form.state.id_for_label }}" class="form-label">{{ profile_form.state.label }}</label>
+                                    {{ profile_form.state }}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ profile_form.pincode.id_for_label }}" class="form-label">{{ profile_form.pincode.label }}</label>
+                                    {{ profile_form.pincode }}
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Profile Picture -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Profile Picture</legend>
+                            
+                            <div class="mb-3">
+                                <label for="{{ profile_form.profile_picture.id_for_label }}" class="form-label">{{ profile_form.profile_picture.label }}</label>
+                                {{ profile_form.profile_picture }}
+                            </div>
+                        </fieldset>
+
+                        <!-- Verification Status -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Verification</legend>
+                            
+                            <div class="form-check">
+                                {{ profile_form.is_verified }}
+                                <label class="form-check-label" for="{{ profile_form.is_verified.id_for_label }}">
+                                    {{ profile_form.is_verified.label }}
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <!-- User Permissions -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">User Permissions & Role</legend>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">User Role</label>
+                                <div class="bg-light p-3 rounded">
+                                    {% for value, label in perm_form.role.field.choices %}
+                                        <div class="form-check">
+                                            <input type="radio" class="form-check-input" name="role" value="{{ value }}" id="role_{{ value }}" 
+                                                {% if perm_form.role.value == value %}checked{% endif %}>
+                                            <label class="form-check-label" for="role_{{ value }}">
+                                                <strong>{{ label }}</strong>
+                                                {% if value == 'user' %}
+                                                    <small class="d-block text-muted">Regular user account</small>
+                                                {% elif value == 'staff' %}
+                                                    <small class="d-block text-muted">Staff/Admin access</small>
+                                                {% elif value == 'superuser' %}
+                                                    <small class="d-block text-muted">Full superuser access</small>
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="form-check mt-3">
+                                {{ perm_form.is_active }}
+                                <label class="form-check-label" for="{{ perm_form.is_active.id_for_label }}">
+                                    {{ perm_form.is_active.label }} - User can log in
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{% url 'admin_dashboard:user_detail' profile_user.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

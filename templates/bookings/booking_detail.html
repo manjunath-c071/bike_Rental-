@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Details - RideNova{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'bookings:booking_list' %}">My Bookings</a></li>
+        <li class="breadcrumb-item active">Booking #{{ booking.id }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Booking #{{ booking.id }}</h4>
+                    <span class="badge {% if booking.status == 'pending' %}badge-warning{% elif booking.status == 'confirmed' %}badge-info{% elif booking.status == 'active' %}badge-success{% elif booking.status == 'completed' %}badge-primary{% elif booking.status == 'cancelled' %}badge-danger{% endif %} p-2">
+                        {{ booking.get_status_display|title }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Bike Information -->
+                <h5>Bike Information</h5>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        {% if booking.bike.image %}
+                            <img src="{{ booking.bike.image.url }}" class="img-fluid rounded">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h6>{{ booking.bike.name }}</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Brand:</strong></td>
+                                <td>{{ booking.bike.brand }} {{ booking.bike.model }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Type:</strong></td>
+                                <td>{{ booking.bike.get_bike_type_display }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Location:</strong></td>
+                                <td>{{ booking.bike.city }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Booking Details -->
+                <h5>Booking Timeline</h5>
+                <table class="table">
+                    <tr>
+                        <td><strong>Start Date & Time:</strong></td>
+                        <td>{{ booking.start_date|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>End Date & Time:</strong></td>
+                        <td>{{ booking.end_date|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Duration:</strong></td>
+                        <td>{{ booking.total_hours }} hours</td>
+                    </tr>
+                </table>
+                
+                <hr>
+                
+                <!-- Location Details -->
+                <h5>Location Information</h5>
+                <table class="table">
+                    <tr>
+                        <td><strong>Pickup Location:</strong></td>
+                        <td>
+                            {{ booking.get_pickup_location_display }}
+                            {% if booking.custom_pickup_location %}
+                                - {{ booking.custom_pickup_location }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Return Location:</strong></td>
+                        <td>
+                            {{ booking.get_return_location_display }}
+                            {% if booking.custom_return_location %}
+                                - {{ booking.custom_return_location }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+                
+                <hr>
+                
+                <!-- Notes -->
+                {% if booking.notes %}
+                    <h5>Notes</h5>
+                    <p>{{ booking.notes }}</p>
+                    <hr>
+                {% endif %}
+                
+                <!-- Actions -->
+                {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                    <div class="alert alert-warning">
+                        <a href="{% url 'bookings:booking_cancel' booking.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?')">Cancel Booking</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Pricing Summary -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Price Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td>Hourly Rate:</td>
+                        <td>₹{{ booking.hourly_rate }}</td>
+                    </tr>
+                    <tr>
+                        <td>Duration:</td>
+                        <td>{{ booking.total_hours }} hours</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><hr></td>
+                    </tr>
+                    <tr>
+                        <td>Rental Cost:</td>
+                        <td>₹{% widthratio booking.total_cost booking.insurance_amount 100 %}</td>
+                    </tr>
+                    {% if booking.insurance_opted %}
+                        <tr>
+                            <td>Insurance (5%):</td>
+                            <td>₹{{ booking.insurance_amount }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td colspan="2"><hr></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Cost:</strong></td>
+                        <td><strong>₹{{ booking.total_cost }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Status -->
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Booking Status</h5>
+            </div>
+            <div class="card-body text-center">
+                <h6>Current Status</h6>
+                {% if booking.status == 'pending' %}
+                    <span class="badge badge-warning badge-lg p-2">Pending Approval</span>
+                {% elif booking.status == 'confirmed' %}
+                    <span class="badge badge-info badge-lg p-2">Confirmed</span>
+                {% elif booking.status == 'active' %}
+                    <span class="badge badge-success badge-lg p-2">Active</span>
+                {% elif booking.status == 'completed' %}
+                    <span class="badge badge-primary badge-lg p-2">Completed</span>
+                {% elif booking.status == 'cancelled' %}
+                    <span class="badge badge-danger badge-lg p-2">Cancelled</span>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <small class="text-muted">Booking Date: {{ booking.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

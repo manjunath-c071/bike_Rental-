@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 20px 0;
+    }
+
+    .login-container {
+        max-width: 450px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 50px 20px;
+        text-align: center;
+    }
+
+    .login-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .login-header p {
+        margin: 0;
+        font-size: 1rem;
+        opacity: 0.95;
+    }
+
+    .login-content {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        width: 100%;
+        padding: 13px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-group input[type="email"]:focus,
+    .form-group input[type="password"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group input.is-valid {
+        border-color: #28a745;
+        background-color: #f0f9ff;
+    }
+
+    .form-group input.is-invalid {
+        border-color: #dc3545;
+        background-color: #fff5f5;
+    }
+
+    .form-group .help-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .form-group .errors {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        list-style: none;
+        padding: 0;
+    }
+
+    .form-group .errors li {
+        margin-bottom: 4px;
+    }
+
+    .form-group .errors li:before {
+        content: "⚠ ";
+        margin-right: 5px;
+    }
+
+    .remember-me-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .remember-me-group input[type="checkbox"] {
+        margin-right: 8px;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+
+    .remember-me-group label {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #666;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .forgot-password {
+        text-align: right;
+        margin-bottom: 25px;
+    }
+
+    .forgot-password a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .divider {
+        text-align: center;
+        margin: 30px 0;
+        position: relative;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .divider:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 1px;
+        background: #e0e0e0;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .signup-link {
+        text-align: center;
+    }
+
+    .signup-link p {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .signup-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signup-link a:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-danger {
+        background: #ffe6e6;
+        color: #c92a2a;
+        border-left: 4px solid #c92a2a;
+    }
+
+    .alert-success {
+        background: #e6ffe6;
+        color: #2a9d2f;
+        border-left: 4px solid #2a9d2f;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 480px) {
+        .login-container {
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .login-card {
+            border-radius: 0;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+        }
+
+        .login-content {
+            padding: 30px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>🏍️ RideNova</h1>
+            <p>Welcome Back!</p>
+        </div>
+
+        <div class="login-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="id_email">📧 Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <ul class="errors">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="help-text">Enter the email address associated with your account</div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="id_password">🔐 Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <ul class="errors">
+                            {% for error in form.password.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me Checkbox -->
+                <div class="remember-me-group">
+                    {{ form.remember_me }}
+                    <label for="id_remember_me">Keep me signed in</label>
+                </div>
+
+                <!-- Forgot Password Link -->
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" class="login-btn">
+                    ✓ Sign In
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <!-- Signup Link -->
+            <div class="signup-link">
+                <p>Don't have an account? <a href="{% url 'users:signup' %}">Create one now</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Real-time form validation
+    const form = document.getElementById('loginForm');
+    const inputs = form.querySelectorAll('input[type="email"], input[type="password"]');
+
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+
+    // Password visibility toggle (optional enhancement)
+    const passwordInput = document.getElementById('id_password');
+    if (passwordInput) {
+        const togglePassword = () => {
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        };
+    }
+});
+</script>
+{% endblock %}

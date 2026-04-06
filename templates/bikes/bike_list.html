@@ -1,0 +1,574 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Bikes - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bikes-header {
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+        border-radius: 12px;
+    }
+
+    .filter-card {
+        background: white;
+        border: 2px solid #ecf0f1;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        transition: all 0.3s;
+    }
+
+    .filter-card:hover {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .filter-input, .filter-select {
+        width: 100%;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+        border-color: #FF6B6B;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+        outline: none;
+    }
+
+    .filter-btn {
+        background: linear-gradient(135deg, #FF6B6B 0%, #f85555 100%);
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        color: white;
+    }
+
+    .filter-btn-clear {
+        background: #ecf0f1;
+        color: #2c3e50;
+        margin-top: 10px;
+    }
+
+    .filter-btn-clear:hover {
+        background: #d9dcde;
+    }
+
+    .bikes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .bike-card {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bike-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .bike-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    }
+
+    .bike-image-placeholder {
+        background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 220px;
+        font-size: 60px;
+        color: #bbb;
+    }
+
+    .bike-info {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bike-name {
+        font-size: 1.15rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+
+    .bike-meta {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-bottom: 10px;
+    }
+
+    .bike-badges {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .bike-badge {
+        display: inline-block;
+        background: #f0f0f0;
+        color: #FF6B6B;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .bike-description {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+        flex-grow: 1;
+        line-height: 1.4;
+    }
+
+    .bike-pricing {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding-top: 12px;
+        border-top: 1px solid #ecf0f1;
+    }
+
+    .price-item {
+        text-align: center;
+    }
+
+    .price-label {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .price {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #FF6B6B;
+        margin-top: 3px;
+    }
+
+    .bike-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-view, .btn-book {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-view {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-view:hover {
+        background: #d9dcde;
+        color: #2c3e50;
+    }
+
+    .btn-book {
+        background: linear-gradient(135deg, #FF6B6B 0%, #f85555 100%);
+        color: white;
+    }
+
+    .btn-book:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        color: white;
+    }
+
+    .sort-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
+    .bikes-count {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .sort-dropdown {
+        padding: 8px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+
+    .pagination a, .pagination .page-link {
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 8px 12px;
+        text-decoration: none;
+        color: #2c3e50;
+        transition: all 0.3s;
+    }
+
+    .pagination a:hover, .pagination .page-link:hover {
+        background: #f0f0f0;
+    }
+
+    .pagination .active {
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    .pagination .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .no-bikes {
+        text-align: center;
+        padding: 60px 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .no-bikes-icon {
+        font-size: 80px;
+        color: #bbb;
+        margin-bottom: 20px;
+    }
+
+    .no-bikes h3 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .no-bikes p {
+        color: #7f8c8d;
+        font-size: 1.05rem;
+    }
+
+    @media (max-width: 768px) {
+        .bikes-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .sort-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sort-dropdown {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="bikes-header">
+    <div class="container">
+        <h1 class="mb-2"><i class="fas fa-bicycle"></i> Browse Available Bikes</h1>
+        <p class="mb-0">{{ paginator.count }} bikes available for rent</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <form method="GET" id="filter-form">
+                <div class="filter-card">
+                    <div class="filter-title">
+                        <i class="fas fa-sliders-h"></i> Filters
+                    </div>
+
+                    <!-- Search -->
+                    <div class="filter-group">
+                        <label class="filter-label">Search</label>
+                        <input type="text" name="search" class="filter-input" placeholder="Search by name..." value="{{ search_query|default:'' }}">
+                    </div>
+
+                    <!-- Location -->
+                    <div class="filter-group">
+                        <label class="filter-label">Location</label>
+                        <button type="button" class="filter-input" data-toggle="location-modal" style="text-align: left; cursor: pointer; background-color: #f8f9fa;">
+                            <i class="fas fa-map-marker-alt"></i> {{ selected_city|default:"Select City" }}
+                        </button>
+                        {% if selected_city %}
+                            <input type="hidden" name="city" value="{{ selected_city }}">
+                        {% endif %}
+                    </div>
+
+                    <!-- Bike Type -->
+                    <div class="filter-group">
+                        <label class="filter-label">Bike Type</label>
+                        <select name="type" class="filter-select">
+                            <option value="">All Types</option>
+                            {% for type_code, type_label in bike_types %}
+                                <option value="{{ type_code }}" {% if selected_type == type_code %}selected{% endif %}>{{ type_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="filter-group">
+                        <label class="filter-label">Min Price (₹/hr)</label>
+                        <input type="number" name="min_price" class="filter-input" placeholder="0" value="{{ min_price|default:'' }}">
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Max Price (₹/hr)</label>
+                        <input type="number" name="max_price" class="filter-input" placeholder="500" value="{{ max_price|default:'' }}">
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="filter-group">
+                        <label class="filter-label">Sort By</label>
+                        <select name="sort" class="filter-select">
+                            <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest</option>
+                            <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest</option>
+                            <option value="rental_price_hourly" {% if sort_by == 'rental_price_hourly' %}selected{% endif %}>Price (Low to High)</option>
+                            <option value="-rental_price_hourly" {% if sort_by == '-rental_price_hourly' %}selected{% endif %}>Price (High to Low)</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name (A-Z)</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <button type="submit" class="filter-btn">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'bikes:bike_list' %}" class="filter-btn filter-btn-clear">
+                        <i class="fas fa-times"></i> Clear All
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bikes Grid -->
+        <div class="col-lg-9">
+            <!-- Sort and Results Info -->
+            {% if bikes %}
+                <div class="sort-section">
+                    <div class="bikes-count">
+                        Showing <strong>{{ bikes.paginator.count }}</strong> bike{{ bikes.paginator.count|pluralize }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Bikes Grid -->
+            {% if bikes %}
+                <div class="bikes-grid">
+                    {% for bike in bikes %}
+                        <div class="bike-card">
+                            {% if bike.image %}
+                                <img src="{{ bike.image.url }}" alt="{{ bike.name }}" class="bike-image">
+                            {% else %}
+                                <div class="bike-image-placeholder">
+                                    <i class="fas fa-bicycle"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="bike-info">
+                                <div class="bike-name">{{ bike.name }}</div>
+                                <div class="bike-meta">{{ bike.brand }} {{ bike.model }} ({{ bike.year }})</div>
+
+                                <div class="bike-badges">
+                                    <span class="bike-badge">{{ bike.get_bike_type_display }}</span>
+                                    <span class="bike-badge" style="color: #4ECDC4;">{{ bike.city }}</span>
+                                </div>
+
+                                <div class="bike-description">{{ bike.description|truncatewords:20 }}</div>
+
+                                <div class="bike-pricing">
+                                    <div class="price-item">
+                                        <div class="price-label">Per Hour</div>
+                                        <div class="price">₹{{ bike.rental_price_hourly }}</div>
+                                    </div>
+                                    <div class="price-item">
+                                        <div class="price-label">Per Day</div>
+                                        <div class="price">₹{{ bike.rental_price_daily }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="bike-actions">
+                                    <a href="{% url 'bikes:bike_detail' bike.id %}" class="btn-view">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <div data-user-only="true" style="flex: 1;">
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'bookings:booking_create' %}?bike_id={{ bike.id }}" class="btn-book" data-action="book">
+                                                <i class="fas fa-check"></i> Book
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'users:login' %}" class="btn-book">
+                                                <i class="fas fa-check"></i> Book
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if paginator.num_pages > 1 %}
+                    <div class="pagination">
+                        {% if bikes.has_previous %}
+                            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i> First
+                            </a>
+                            <a href="?page={{ bikes.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        {% else %}
+                            <span class="disabled">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </span>
+                        {% endif %}
+
+                        {% for num in paginator.page_range %}
+                            {% if bikes.number == num %}
+                                <span class="active">{{ num }}</span>
+                            {% else %}
+                                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if bikes.has_next %}
+                            <a href="?page={{ bikes.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <a href="?page={{ paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">
+                                Last <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% else %}
+                            <span class="disabled">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="no-bikes">
+                    <div class="no-bikes-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No Bikes Found</h3>
+                    <p>Try adjusting your filters or search terms</p>
+                    <a href="{% url 'bikes:bike_list' %}" class="btn btn-primary mt-3">
+                        View All Bikes
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update location filter when city is selected
+    const originalUpdateLocationUI = window.updateLocationUI;
+    window.updateLocationUI = function(city) {
+        if (originalUpdateLocationUI) {
+            originalUpdateLocationUI(city);
+        }
+        // Update filter form city value
+        const filterForm = document.getElementById('filter-form');
+        if (filterForm) {
+            const cityInput = filterForm.querySelector('input[name="city"]');
+            if (cityInput) {
+                cityInput.value = city;
+            } else {
+                // Create hidden input if it doesn't exist
+                const newInput = document.createElement('input');
+                newInput.type = 'hidden';
+                newInput.name = 'city';
+                newInput.value = city;
+                filterForm.appendChild(newInput);
+            }
+            // Auto-submit form
+            filterForm.submit();
+        }
+    };
+</script>
+{% endblock %}

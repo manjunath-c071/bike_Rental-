@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment - Complete Your Booking - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .payment-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .payment-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+    }
+
+    .payment-header h2 {
+        font-weight: bold;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .payment-header p {
+        color: #7f8c8d;
+        font-size: 1rem;
+    }
+
+    .booking-details {
+        background: #f8f9fa;
+        border-left: 4px solid #FF6B6B;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 12px 0;
+        font-size: 0.95rem;
+    }
+
+    .detail-label {
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .detail-row.separator {
+        border-bottom: 1px solid #e0e0e0;
+        margin: 15px 0;
+        padding-bottom: 15px;
+    }
+
+    .detail-row.total {
+        font-size: 1.3rem;
+        color: #FF6B6B;
+        margin-top: 15px;
+        border-top: 2px solid #e0e0e0;
+        padding-top: 15px;
+    }
+
+    .detail-row.total .detail-value {
+        color: #FF6B6B;
+        font-size: 1.5rem;
+    }
+
+    .payment-methods {
+        margin: 30px 0;
+    }
+
+    .payment-method-header {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+
+    .payment-option {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .payment-option:hover {
+        border-color: #FF6B6B;
+        background: #fff5f5;
+    }
+
+    .payment-option input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #FF6B6B;
+    }
+
+    .payment-option.selected {
+        border-color: #FF6B6B;
+        background: #fff5f5;
+    }
+
+    .option-info {
+        flex: 1;
+    }
+
+    .option-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .option-desc {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-top: 2px;
+    }
+
+    .option-icon {
+        font-size: 1.5rem;
+    }
+
+    .payment-form-group {
+        margin-bottom: 20px;
+    }
+
+    .payment-form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .payment-form-group input,
+    .payment-form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .payment-form-group input:focus,
+    .payment-form-group select:focus {
+        outline: none;
+        border-color: #FF6B6B;
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    }
+
+    .payment-button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .payment-button {
+        flex: 1;
+        min-width: 150px;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-primary-payment {
+        background: linear-gradient(135deg, #FF6B6B 0%, #f85555 100%);
+        color: white;
+    }
+
+    .btn-primary-payment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-cancel {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-cancel:hover {
+        background: #bdc3c7;
+    }
+
+    .btn-primary-payment:disabled,
+    .btn-cancel:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .payment-status {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+        font-weight: 500;
+    }
+
+    .payment-status.show {
+        display: block;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+
+    .status-processing {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+    }
+
+    .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+    .security-badge {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .security-icon {
+        color: #27ae60;
+        font-size: 1.2rem;
+        margin-right: 8px;
+    }
+
+    @media (max-width: 576px) {
+        .payment-card {
+            padding: 20px;
+        }
+
+        .payment-header h2 {
+            font-size: 1.4rem;
+        }
+
+        .payment-button-group {
+            flex-direction: column;
+        }
+
+        .payment-button {
+            min-width: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-wrapper">
+    <div class="payment-container">
+        <div class="payment-card">
+            <!-- Payment Header -->
+            <div class="payment-header">
+                <h2>💳 Complete Payment</h2>
+                <p>Secure payment for your bike rental booking</p>
+            </div>
+
+            <!-- Booking Details Summary -->
+            <div class="booking-details">
+                <div class="detail-row">
+                    <span class="detail-label">🚲 Bike:</span>
+                    <span class="detail-value">{{ booking.bike.name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📅 Duration:</span>
+                    <span class="detail-value">{{ booking.total_hours|floatformat:1 }} hours</span>
+                </div>
+                <div class="detail-row separator">
+                    <span class="detail-label">💰 Rate:</span>
+                    <span class="detail-value">₹{{ booking.hourly_rate }}/hour</span>
+                </div>
+                <div class="detail-row total">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value">₹{{ booking.total_cost }}</span>
+                </div>
+            </div>
+
+            <!-- Payment Status (shown when processing) -->
+            <div class="payment-status status-pending" id="payment-status">
+                <span id="status-message">Ready to process payment</span>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <form id="payment-form" method="POST">
+                {% csrf_token %}
+
+                <div class="payment-methods">
+                    <div class="payment-method-header">Select Payment Method</div>
+
+                    <label class="payment-option selected">
+                        <input type="radio" name="payment_method" value="card" checked>
+                        <span class="option-icon">💳</span>
+                        <div class="option-info">
+                            <div class="option-name">Credit/Debit Card</div>
+                            <div class="option-desc">Visa, Mastercard, American Express</div>
+                        </div>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="upi">
+                        <span class="option-icon">📱</span>
+                        <div class="option-info">
+                            <div class="option-name">UPI</div>
+                            <div class="option-desc">Google Pay, PhonePe, Paytm</div>
+                        </div>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="wallet">
+                        <span class="option-icon">👛</span>
+                        <div class="option-info">
+                            <div class="option-name">Digital Wallet</div>
+                            <div class="option-desc">Amazon Pay, Apple Pay</div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" name="amount" value="{{ booking.total_cost }}">
+                <input type="hidden" name="booking_id" value="{{ booking.id }}">
+
+                <!-- Action Buttons -->
+                <div class="payment-button-group">
+                    <button type="button" class="payment-button btn-cancel" onclick="window.history.back()">
+                        ← Cancel
+                    </button>
+                    <button type="submit" class="payment-button btn-primary-payment" id="submit-btn">
+                        Pay ₹{{ booking.total_cost }}
+                    </button>
+                </div>
+            </form>
+
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <span class="security-icon">🔒</span>
+                <span>Your payment is secure and encrypted</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Payment Method Selection UI
+    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            // Remove selected from all
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            // Add selected to parent
+            e.target.closest('.payment-option').classList.add('selected');
+        });
+    });
+
+    // Payment Form Submission
+    document.getElementById('payment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submit-btn');
+        const statusDiv = document.getElementById('payment-status');
+        const statusMessage = document.getElementById('status-message');
+
+        // Show loading state
+        window.roleBasedAccess?.showLoading('Processing payment...');
+        submitBtn.disabled = true;
+
+        // Show processing status
+        statusDiv.classList.add('show', 'status-processing');
+        statusMessage.textContent = 'Processing your payment...';
+
+        try {
+            const response = await fetch(`/payments/process/${formData.get('booking_id')}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                },
+                body: JSON.stringify({
+                    payment_method: formData.get('payment_method'),
+                    amount: formData.get('amount'),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Payment successful
+                statusDiv.classList.add('status-completed', 'show');
+                statusMessage.textContent = '✓ Payment successful!';
+
+                window.roleBasedAccess?.showNotification(
+                    'Payment successful! Redirecting to confirmation...',
+                    'success'
+                );
+
+                // Wait a moment then redirect
+                setTimeout(() => {
+                    window.roleBasedAccess?.hideLoading();
+                    window.location.href = `/bookings/payment-success/${formData.get('booking_id')}/`;
+                }, 1500);
+            } else {
+                // Payment failed
+                statusDiv.classList.add('status-failed', 'show');
+                statusMessage.textContent = '✕ Payment failed';
+
+                window.roleBasedAccess?.showNotification(
+                    data.error || 'Payment failed. Please try again.',
+                    'error'
+                );
+
+                window.roleBasedAccess?.hideLoading();
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            statusDiv.classList.add('status-failed', 'show');
+            statusMessage.textContent = '✕ Error processing payment';
+
+            window.roleBasedAccess?.showNotification(
+                'Error processing payment: ' + error.message,
+                'error'
+            );
+
+            window.roleBasedAccess?.hideLoading();
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+{% endblock %}

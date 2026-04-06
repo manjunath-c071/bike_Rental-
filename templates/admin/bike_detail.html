@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ bike.name }} - RideNova Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="fas fa-motorcycle"></i> {{ bike.name }}
+        </h1>
+        <div class="btn-group">
+            <a href="{% url 'admin_dashboard:bike_edit' bike.id %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'admin_dashboard:bike_delete' bike.id %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <a href="{% url 'admin_dashboard:bikes' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left: Image & Status -->
+        <div class="col-lg-4 mb-4">
+            {% if bike.image %}
+                <img src="{{ bike.image.url }}" class="img-fluid rounded mb-3 border">
+            {% else %}
+                <div class="bg-light rounded mb-3 p-5 text-center border" style="display: flex; align-items: center; justify-content: center; height: 300px;">
+                    <div class="text-center">
+                        <i class="fas fa-motorcycle fa-5x text-muted mb-3"></i>
+                        <small class="text-muted">No image</small>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Status Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Status</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Availability:</strong><br>
+                        {% if bike.is_available %}
+                            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Available</span>
+                        {% else %}
+                            <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Unavailable</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Condition:</strong><br>
+                        {{ bike.get_condition_display }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Year:</strong><br>
+                        {{ bike.year }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-2">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ total_bookings }}</h4>
+                            <small>Total Bookings</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ completed_bookings }}</h4>
+                            <small>Completed</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h5 class="text-success">₹{{ revenue|floatformat:0 }}</h5>
+                        <small>Total Revenue</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Details & Bookings -->
+        <div class="col-lg-8">
+            <!-- Bike Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card"></i> Bike Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Brand:</strong><br>
+                            {{ bike.brand }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Model:</strong><br>
+                            {{ bike.model }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Type:</strong><br>
+                            <span class="badge bg-info">{{ bike.get_bike_type_display }}</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>City:</strong><br>
+                            {{ bike.city }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Hourly Rate:</strong><br>
+                            <h5 class="text-success">₹{{ bike.rental_price_hourly }}/hour</h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Daily Rate:</strong><br>
+                            <h5 class="text-success">₹{{ bike.rental_price_daily }}/day</h5>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong>Created:</strong><br>
+                            {{ bike.created_at|date:"M d, Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking History -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Recent Bookings
+                    </h5>
+                </div>
+                {% if bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Dates</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        <td>₹{{ bike.rental_price_daily }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Recent Bookings</h5>
+            </div>
+            <div class="card-body">
+                {% if bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>User</th>
+                                    <th>Dates</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                    <tr>
+                                        <td>#{{ booking.id }}</td>
+                                        <td>{{ booking.user.username }}</td>
+                                        <td>{{ booking.start_date|date:"M d" }} - {{ booking.end_date|date:"M d, Y" }}</td>
+                                        <td><span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                                        <td>₹{{ booking.total_cost }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No bookings for this bike yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

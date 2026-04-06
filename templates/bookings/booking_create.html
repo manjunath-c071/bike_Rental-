@@ -1,0 +1,532 @@
+{% extends 'base.html' %}
+
+{% block title %}Book a Bike - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-header {
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+        border-radius: 12px;
+    }
+
+    .booking-form-card {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+
+    .form-section-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #FF6B6B;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .form-control, .form-control:focus, select.form-control {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #FF6B6B;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+    }
+
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        margin-left: 8px;
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 30px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .summary-section {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .summary-section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .summary-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .summary-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .price-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #FF6B6B;
+    }
+
+    .bike-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-right: 10px;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #FF6B6B 0%, #f85555 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        color: white;
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+    }
+
+    .bike-info {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .bike-image-thumb {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: #bbb;
+    }
+
+    .bike-details h5 {
+        margin-top: 0;
+        color: #2c3e50;
+    }
+
+    .no-bike-alert {
+        text-align: center;
+        padding: 40px;
+    }
+
+    .price-breakdown {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        border: 1px solid #ecf0f1;
+    }
+
+    .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+
+    .breakdown-row.total {
+        border-top: 2px solid #ecf0f1;
+        padding-top: 10px;
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #FF6B6B;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #FF6B6B;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+        .summary-card {
+            position: static;
+            margin-top: 30px;
+        }
+
+        .bike-info {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const bikeId = '{{ bike.id }}';
+    const calculatePriceUrl = '{% url "bookings:calculate_price" %}';
+
+    function calculatePrice() {
+        const startDate = document.getElementById('id_start_date').value;
+        const endDate = document.getElementById('id_end_date').value;
+        const insuranceChecked = document.getElementById('id_insurance_opted').checked;
+
+        if (!startDate || !endDate) {
+            resetPriceDisplay();
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('bike_id', bikeId);
+        formData.append('start_date', startDate);
+        formData.append('end_date', endDate);
+        formData.append('insurance', insuranceChecked);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch(calculatePriceUrl, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                updatePriceDisplay(data);
+            } else {
+                showPriceError(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showPriceError('Failed to calculate price');
+        });
+    }
+
+    function updatePriceDisplay(data) {
+        document.getElementById('duration-hours').textContent = data.duration;
+        document.getElementById('rental-cost').textContent = '₹' + data.rental_cost.toFixed(2);
+        document.getElementById('insurance-cost').textContent = '₹' + data.insurance_amount.toFixed(2);
+        document.getElementById('total-price').textContent = '₹' + data.total_cost.toFixed(2);
+        
+        // Update breakdown
+        const breakdownHtml = `
+            <div class="breakdown-row">
+                <span>${data.duration} hours × ₹${data.hourly_rate}</span>
+                <span>₹${data.rental_cost.toFixed(2)}</span>
+            </div>
+            ${data.insurance_amount > 0 ? `
+                <div class="breakdown-row">
+                    <span>Insurance (5%)</span>
+                    <span>₹${data.insurance_amount.toFixed(2)}</span>
+                </div>
+            ` : ''}
+            <div class="breakdown-row total">
+                <span>Total Cost</span>
+                <span>₹${data.total_cost.toFixed(2)}</span>
+            </div>
+        `;
+        document.getElementById('price-breakdown').innerHTML = breakdownHtml;
+    }
+
+    function resetPriceDisplay() {
+        document.getElementById('duration-hours').textContent = 'Select dates';
+        document.getElementById('rental-cost').textContent = '₹0';
+        document.getElementById('insurance-cost').textContent = '₹0';
+        document.getElementById('total-price').textContent = '₹0';
+        document.getElementById('price-breakdown').innerHTML = '';
+    }
+
+    function showPriceError(message) {
+        document.getElementById('duration-hours').textContent = 'Error';
+        document.getElementById('total-price').textContent = 'Invalid dates';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('id_start_date');
+        const endDateInput = document.getElementById('id_end_date');
+        const insuranceCheckbox = document.getElementById('id_insurance_opted');
+
+        if (startDateInput) startDateInput.addEventListener('change', calculatePrice);
+        if (endDateInput) endDateInput.addEventListener('change', calculatePrice);
+        if (insuranceCheckbox) insuranceCheckbox.addEventListener('change', calculatePrice);
+
+        // Set minimum date to now
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        if (startDateInput) {
+            startDateInput.min = now.toISOString().slice(0, 16);
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="booking-header">
+    <div class="container">
+        <h1 class="mb-2"><i class="fas fa-calendar-check"></i> Book Your Ride</h1>
+        <p class="mb-0">Fill in your details and confirm your booking</p>
+    </div>
+</div>
+
+<div class="container">
+    {% if bike %}
+        <div class="row">
+            <!-- Booking Form -->
+            <div class="col-lg-8">
+                <!-- Bike Info -->
+                <div class="booking-form-card">
+                    <div class="bike-info">
+                        {% if bike.image %}
+                            <img src="{{ bike.image.url }}" alt="{{ bike.name }}" class="bike-image-thumb">
+                        {% else %}
+                            <div class="bike-image-thumb">
+                                <i class="fas fa-bicycle"></i>
+                            </div>
+                        {% endif %}
+                        <div class="bike-details">
+                            <h5>{{ bike.name }}</h5>
+                            <p class="mb-2">{{ bike.brand }} {{ bike.model }} ({{ bike.year }})</p>
+                            <div>
+                                <span class="bike-badge">{{ bike.get_bike_type_display }}</span>
+                                <span class="bike-badge" style="background: #95E1D3;">{{ bike.city }}</span>
+                            </div>
+                            <hr class="my-2">
+                            <p class="mb-0"><strong>₹{{ bike.rental_price_hourly }}/hour</strong> • ₹{{ bike.rental_price_daily }}/day</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates Section -->
+                <div class="booking-form-card">
+                    <div class="form-section-title">
+                        <i class="fas fa-calendar"></i> Select Dates & Time
+                    </div>
+                    
+                    <form method="POST" id="booking-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.start_date.label_tag }}
+                                    {{ form.start_date }}
+                                    {% if form.start_date.help_text %}
+                                        <div class="help-text">{{ form.start_date.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.start_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.start_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.end_date.label_tag }}
+                                    {{ form.end_date }}
+                                    {% if form.end_date.help_text %}
+                                        <div class="help-text">{{ form.end_date.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.end_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.end_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <!-- Locations Section -->
+                <div class="booking-form-card">
+                    <div class="form-section-title">
+                        <i class="fas fa-map-marker-alt"></i> Pickup & Return
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.pickup_location.label_tag }}
+                                {{ form.pickup_location }}
+                                {% if form.pickup_location.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.pickup_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.return_location.label_tag }}
+                                {{ form.return_location }}
+                                {% if form.return_location.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.return_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.custom_pickup_location.label_tag }}
+                                {{ form.custom_pickup_location }}
+                                {% if form.custom_pickup_location.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.custom_pickup_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.custom_return_location.label_tag }}
+                                {{ form.custom_return_location }}
+                                {% if form.custom_return_location.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.custom_return_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="booking-form-card">
+                    <div class="form-section-title">
+                        <i class="fas fa-info-circle"></i> Additional Details
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.notes.label_tag }}
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-check">
+                        {{ form.insurance_opted }}
+                        <label class="form-check-label" for="{{ form.insurance_opted.id_for_label }}">
+                            {{ form.insurance_opted.label }}
+                        </label>
+                        {% if form.insurance_opted.help_text %}
+                            <div class="help-text">{{ form.insurance_opted.help_text }}</div>
+                        {% endif %}
+                        {% if form.insurance_opted.errors %}
+                            <div class="invalid-feedback d-block">{{ form.insurance_opted.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="booking-form-card">
+                    <button type="submit" class="submit-btn" form="booking-form">
+                        <i class="fas fa-check"></i> Proceed to Confirmation
+                    </button>
+                </div>
+                        </form>
+            </div>
+
+            <!-- Price Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h5 class="mb-4"><i class="fas fa-calculator"></i> Booking Summary</h5>
+
+                    <div class="summary-section">
+                        <div class="summary-label">Duration</div>
+                        <div class="summary-value" id="duration-hours">Select dates</div>
+                    </div>
+
+                    <div class="summary-section">
+                        <div class="summary-label">Hourly Rate</div>
+                        <div class="summary-value">₹{{ bike.rental_price_hourly }}</div>
+                    </div>
+
+                    <div class="summary-section">
+                        <div class="summary-label">Rental Cost</div>
+                        <div class="summary-value" id="rental-cost">₹0</div>
+                    </div>
+
+                    <div class="summary-section">
+                        <div class="summary-label">Insurance</div>
+                        <div class="summary-value" id="insurance-cost">₹0</div>
+                    </div>
+
+                    <div class="summary-section" style="background: #F5F7FA; padding: 20px; border-radius: 8px; margin: 20px -15px -15px; border-bottom: none;">
+                        <div class="summary-label">Total Amount</div>
+                        <div id="total-price" class="price-value">₹0</div>
+                    </div>
+
+                    <div id="price-breakdown" class="price-breakdown"></div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="booking-form-card">
+            <div class="no-bike-alert">
+                <i class="fas fa-bicycle" style="font-size: 60px; color: #bbb; margin-bottom: 20px;"></i>
+                <h3>No Bike Selected</h3>
+                <p>Please select a bike from our listing to proceed with booking.</p>
+                <a href="{% url 'bikes:bike_list' %}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-bicycle"></i> Browse Bikes
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

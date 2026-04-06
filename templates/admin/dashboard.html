@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - RideNova{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h1 class="h2">
+            <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+        </h1>
+        <p class="text-muted">Manage bikes, bookings, users, and view reports</p>
+    </div>
+
+    <!-- Main Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-muted">Total Users</h6>
+                            <h2 class="mb-0">{{ total_users }}</h2>
+                        </div>
+                        <div class="fs-1 text-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-success">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-muted">Total Bikes</h6>
+                            <h2 class="mb-0">{{ total_bikes }}</h2>
+                        </div>
+                        <div class="fs-1 text-success">
+                            <i class="fas fa-motorcycle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-info">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-muted">Total Bookings</h6>
+                            <h2 class="mb-0">{{ total_bookings }}</h2>
+                        </div>
+                        <div class="fs-1 text-info">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-muted">Active Bookings</h6>
+                            <h2 class="mb-0">{{ active_bookings }}</h2>
+                        </div>
+                        <div class="fs-1 text-warning">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue & Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Revenue</h6>
+                    <h2 class="mb-0">₹{{ total_revenue|floatformat:0 }}</h2>
+                    <small>All-time</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-gradient-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">This Month</h6>
+                    <h2 class="mb-0">₹{{ month_revenue|floatformat:0 }}</h2>
+                    <small>Monthly revenue</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-gradient-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Bike Availability</h6>
+                    <h3 class="mb-0">
+                        <span class="badge badge-light">{{ available_bikes }}/{{ available_bikes|add:unavailable_bikes }}</span>
+                    </h3>
+                    <small>Available</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-gradient-warning text-dark">
+                <div class="card-body">
+                    <h6 class="card-title">Upcoming (7 days)</h6>
+                    <h2 class="mb-0">{{ upcoming_bookings }}</h2>
+                    <small>Pending/Confirmed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Quick Access -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-motorcycle fa-3x mb-3 text-danger"></i>
+                    <h5>Manage Bikes</h5>
+                    <p class="text-muted small">Add, edit, or delete bikes</p>
+                    <a href="{% url 'admin_dashboard:bikes' %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-arrow-right"></i> Go
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-calendar-alt fa-3x mb-3 text-info"></i>
+                    <h5>Manage Bookings</h5>
+                    <p class="text-muted small">View and manage bookings</p>
+                    <a href="{% url 'admin_dashboard:bookings' %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-arrow-right"></i> Go
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                    <h5>Manage Users</h5>
+                    <p class="text-muted small">Manage user accounts</p>
+                    <a href="{% url 'admin_dashboard:users' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-arrow-right"></i> Go
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-chart-bar fa-3x mb-3 text-success"></i>
+                    <h5>Reports</h5>
+                    <p class="text-muted small">View analytics</p>
+                    <a href="{% url 'admin_dashboard:reports' %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-arrow-right"></i> Go
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Bookings -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Recent Bookings
+                    </h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Bike</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                                <tr>
+                                    <td>{{ booking.user.get_full_name|default:booking.user.email|truncatewords:2 }}</td>
+                                    <td>{{ booking.bike.name|truncatewords:2 }}</td>
+                                    <td>
+                                        {% if booking.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif booking.status == 'confirmed' %}
+                                            <span class="badge bg-success">Confirmed</span>
+                                        {% elif booking.status == 'active' %}
+                                            <span class="badge bg-info">Active</span>
+                                        {% elif booking.status == 'completed' %}
+                                            <span class="badge bg-primary">Completed</span>
+                                        {% elif booking.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>₹{{ booking.total_cost }}</td>
+                                    <td><small>{{ booking.created_at|date:"M d" }}</small></td>
+                                    <td>
+                                        <a href="{% url 'admin_dashboard:booking_detail' booking.id %}" class="btn btn-xs btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Bikes & Status Summary -->
+        <div class="col-lg-4 mb-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-crown"></i> Top Bikes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for bike in top_bikes %}
+                            <a href="{% url 'admin_dashboard:bike_detail' bike.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ bike.name }}</strong><br>
+                                        <small class="text-muted">{{ bike.city }}</small>
+                                    </div>
+                                    <span class="badge bg-info">{{ bike.booking_count }}</span>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie"></i> Bookings by Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for status in bookings_by_status %}
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">{{ status.status|upper }}</small>
+                                <small><strong>{{ status.count }}</strong></small>
+                            </div>
+                            {% widthratio status.count total_bookings 100 as percent %}
+                            <div class="progress" style="height: 10px;">
+                                {% if status.status == 'pending' %}
+                                    <div class="progress-bar bg-warning" style="width: {{ percent }}%"></div>
+                                {% elif status.status == 'confirmed' %}
+                                    <div class="progress-bar bg-success" style="width: {{ percent }}%"></div>
+                                {% elif status.status == 'active' %}
+                                    <div class="progress-bar bg-info" style="width: {{ percent }}%"></div>
+                                {% elif status.status == 'completed' %}
+                                    <div class="progress-bar bg-primary" style="width: {{ percent }}%"></div>
+                                {% elif status.status == 'cancelled' %}
+                                    <div class="progress-bar bg-danger" style="width: {{ percent }}%"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #007bff;
+    }
+    .border-left-success {
+        border-left: 4px solid #28a745;
+    }
+    .border-left-info {
+        border-left: 4px solid #17a2b8;
+    }
+    .border-left-warning {
+        border-left: 4px solid #ffc107;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+</style>
+{% endblock %}

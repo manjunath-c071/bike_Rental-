@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Booking - RideNova Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-6 offset-lg-3">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Cancel Booking
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p>Are you sure you want to cancel this booking?</p>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Booking ID:</strong> #{{ booking.id }}</p>
+                            <p class="mb-1"><strong>User:</strong> {{ booking.user.get_full_name|default:booking.user.email }}</p>
+                            <p class="mb-1"><strong>Bike:</strong> {{ booking.bike.name }}</p>
+                            <p class="mb-1"><strong>Start Date:</strong> {{ booking.start_date|date:"M d, Y H:i" }}</p>
+                            <p class="mb-1"><strong>End Date:</strong> {{ booking.end_date|date:"M d, Y H:i" }}</p>
+                            <p class="mb-0"><strong>Total Cost:</strong> ₹{{ booking.total_cost }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-check"></i> Yes, Cancel
+                        </button>
+                        <a href="{% url 'admin_dashboard:booking_detail' booking.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> No, Go Back
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

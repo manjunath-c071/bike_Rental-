@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Location - RideNova Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Delete Location
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Are you sure you want to delete the location <strong>"{{ location.name }}"</strong>?</p>
+
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> This action cannot be undone. The following data will be affected:
+                        <ul class="mb-0 mt-2">
+                            <li>{{ location.bikes.count }} bike(s) are currently assigned to this location</li>
+                            <li>All related bookings and data will remain but may become inaccessible</li>
+                        </ul>
+                    </div>
+
+                    {% if location.bikes.exists %}
+                        <div class="alert alert-danger">
+                            <strong>Cannot Delete:</strong> This location has {{ location.bikes.count }} bike(s) assigned to it.
+                            Please reassign or delete these bikes before deleting the location.
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_dashboard:locations' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            {% if not location.bikes.exists %}
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Yes, Delete Location
+                                </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

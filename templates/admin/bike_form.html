@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - RideNova Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-motorcycle"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Display form errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Bike Details Section -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Bike Details</legend>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <small class="text-danger">{{ form.name.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.brand.id_for_label }}" class="form-label">{{ form.brand.label }}</label>
+                                    {{ form.brand }}
+                                    {% if form.brand.errors %}
+                                        <small class="text-danger">{{ form.brand.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.model.id_for_label }}" class="form-label">{{ form.model.label }}</label>
+                                    {{ form.model }}
+                                    {% if form.model.errors %}
+                                        <small class="text-danger">{{ form.model.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.year.id_for_label }}" class="form-label">{{ form.year.label }}</label>
+                                    {{ form.year }}
+                                    {% if form.year.errors %}
+                                        <small class="text-danger">{{ form.year.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.bike_type.id_for_label }}" class="form-label">{{ form.bike_type.label }}</label>
+                                    {{ form.bike_type }}
+                                    {% if form.bike_type.errors %}
+                                        <small class="text-danger">{{ form.bike_type.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.condition.id_for_label }}" class="form-label">{{ form.condition.label }}</label>
+                                    {{ form.condition }}
+                                    {% if form.condition.errors %}
+                                        <small class="text-danger">{{ form.condition.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Pricing Section -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Pricing & Location</legend>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.rental_price_hourly.id_for_label }}" class="form-label">{{ form.rental_price_hourly.label }}</label>
+                                    {{ form.rental_price_hourly }}
+                                    {% if form.rental_price_hourly.errors %}
+                                        <small class="text-danger">{{ form.rental_price_hourly.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.rental_price_daily.id_for_label }}" class="form-label">{{ form.rental_price_daily.label }}</label>
+                                    {{ form.rental_price_daily }}
+                                    {% if form.rental_price_daily.errors %}
+                                        <small class="text-danger">{{ form.rental_price_daily.errors|first }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}</label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <small class="text-danger">{{ form.city.errors|first }}</small>
+                                {% endif %}
+                            </div>
+                        </fieldset>
+
+                        <!-- Status Section -->
+                        <fieldset class="mb-4">
+                            <legend class="h5 mb-3">Status & Media</legend>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check">
+                                        {{ form.is_available }}
+                                        <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+                                            {{ form.is_available.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.image.id_for_label }}" class="form-label">{{ form.image.label }}</label>
+                                {{ form.image }}
+                                <small class="text-muted">Recommended: 800x600px, JPG/PNG</small>
+                                {% if form.image.errors %}
+                                    <div class="text-danger mt-2">{{ form.image.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                        </fieldset>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Bike
+                            </button>
+                            {% if bike %}
+                                <a href="{% url 'admin_dashboard:bike_detail' bike.id %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                            {% else %}
+                                <a href="{% url 'admin_dashboard:bikes' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details - RideNova Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="fas fa-user"></i> {{ profile_user.get_full_name|default:profile_user.email }}
+        </h1>
+        <div class="btn-group">
+            <a href="{% url 'admin_dashboard:user_edit' profile_user.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'admin_dashboard:users' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Side: Profile Info -->
+        <div class="col-lg-4 mb-4">
+            <!-- Profile Picture -->
+            {% if profile_user.profile.profile_picture %}
+                <img src="{{ profile_user.profile.profile_picture.url }}" class="img-fluid rounded mb-3 border">
+            {% else %}
+                <div class="bg-light rounded mb-3 p-5 text-center border" style="display: flex; align-items: center; justify-content: center; height: 300px;">
+                    <div class="text-center">
+                        <i class="fas fa-user fa-5x text-muted mb-3"></i>
+                        <small class="text-muted">No profile picture</small>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Status Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Status</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Account Status:</strong><br>
+                        {% if profile_user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Role:</strong><br>
+                        {% if profile_user.is_superuser %}
+                            <span class="badge bg-danger">Superuser</span>
+                        {% elif profile_user.is_staff %}
+                            <span class="badge bg-warning text-dark">Staff/Admin</span>
+                        {% else %}
+                            <span class="badge bg-secondary">User</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Verification:</strong><br>
+                        {% if profile_user.profile.is_verified %}
+                            <span class="badge bg-success"><i class="fas fa-check"></i> Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pending</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-2">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ total_bookings }}</h4>
+                            <small>Total Bookings</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ completed_bookings }}</h4>
+                            <small>Completed</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h5 class="text-success">₹{{ total_spent|floatformat:0 }}</h5>
+                        <small>Total Spent</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Detailed Info -->
+        <div class="col-lg-8">
+            <!-- User Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card"></i> Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>First Name:</strong><br>
+                            {{ profile_user.first_name|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Last Name:</strong><br>
+                            {{ profile_user.last_name|default:"Not provided" }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Email:</strong><br>
+                            {{ profile_user.email }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Phone:</strong><br>
+                            {{ profile_user.profile.phone_number|default:"Not provided" }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Date of Birth:</strong><br>
+                            {{ profile_user.profile.date_of_birth|date:"M d, Y"|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Member Since:</strong><br>
+                            {{ profile_user.date_joined|date:"M d, Y H:i" }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Address:</strong><br>
+                            {{ profile_user.profile.address|default:"Not provided" }}<br>
+                            {{ profile_user.profile.city }}, {{ profile_user.profile.state }} {{ profile_user.profile.pincode }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking History -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Booking History
+                    </h5>
+                </div>
+                {% if bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Bike</th>
+                                    <th>Dates</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                    <tr>
+                                        <td>#{{ booking.id }}</td>
+                                        <td>{{ booking.bike.name }}</td>
+                                        <td>
+                                            <small>
+                                                {{ booking.start_date|date:"M d" }} - {{ booking.end_date|date:"M d, Y" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if booking.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif booking.status == 'confirmed' %}
+                                                <span class="badge bg-success">Confirmed</span>
+                                            {% elif booking.status == 'active' %}
+                                                <span class="badge bg-info">Active</span>
+                                            {% elif booking.status == 'completed' %}
+                                                <span class="badge bg-primary">Completed</span>
+                                            {% elif booking.status == 'cancelled' %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>₹{{ booking.total_cost }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_dashboard:booking_detail' booking.id %}" class="btn btn-xs btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="card-body">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i> No bookings found for this user.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

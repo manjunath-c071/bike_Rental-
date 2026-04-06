@@ -1,0 +1,370 @@
+/**
+ * Role-Based Access Control Styling
+ * Controls visibility of admin and user UI elements
+ */
+
+/* Admin-Only Elements */
+[data-admin-only="true"] {
+    display: none !important;
+}
+
+body[data-is-admin="true"] [data-admin-only="true"] {
+    display: block !important;
+}
+
+/* User-Only Elements */
+[data-user-only="true"] {
+    display: block !important;
+}
+
+body[data-is-admin="true"] [data-user-only="true"] {
+    display: none !important;
+}
+
+/* Admin Toolbar Styles */
+#admin-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+}
+
+body[data-is-admin="true"] {
+    padding-top: 60px;
+}
+
+.admin-toolbar {
+    display: none;
+}
+
+body[data-is-admin="true"] .admin-toolbar {
+    display: flex;
+}
+
+.toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.admin-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.toolbar-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+}
+
+/* Editable Elements Styling */
+body.edit-mode [data-editable] {
+    border: 2px dashed #FF6B6B !important;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+body.edit-mode [data-editable]:hover {
+    background: rgba(255, 107, 107, 0.05);
+    border-color: #FF6B6B !important;
+}
+
+/* Edit Icon Styling */
+[data-edit-icon] {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #FF6B6B;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.edit-mode [data-editable]:hover [data-edit-icon] {
+    opacity: 1;
+}
+
+[data-edit-icon]:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Admin Hover Effects */
+.admin-hover {
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+}
+
+/* Book Button Styling (for users) */
+.btn-book {
+    background: linear-gradient(135deg, #FF6B6B 0%, #f85555 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-book:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
+    color: white;
+}
+
+.btn-book:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Admin Action Buttons */
+.admin-action-btn {
+    background: transparent;
+    border: 1px solid #FF6B6B;
+    color: #FF6B6B;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.admin-action-btn:hover {
+    background: #FF6B6B;
+    color: white;
+}
+
+.admin-edit-btn {
+    background: transparent;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.admin-edit-btn:hover {
+    background: #3498db;
+    color: white;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9990;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-dialog {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Form Styling */
+.form-group-smooth {
+    margin-bottom: 20px;
+}
+
+.form-group-smooth label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-group-smooth input,
+.form-group-smooth select,
+.form-group-smooth textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group-smooth input:focus,
+.form-group-smooth select:focus,
+.form-group-smooth textarea:focus {
+    outline: none;
+    border-color: #FF6B6B;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #admin-toolbar {
+        padding: 0 10px;
+        height: 50px;
+    }
+
+    body[data-is-admin="true"] {
+        padding-top: 50px;
+    }
+
+    .toolbar-content {
+        gap: 10px;
+    }
+
+    .toolbar-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .modal-dialog {
+        padding: 20px;
+    }
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    margin: -15px 0 0 -15px;
+    border: 3px solid rgba(255, 107, 107, 0.3);
+    border-top-color: #FF6B6B;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Hide scrollbar for admin toolbar area */
+body[data-is-admin="true"] {
+    scroll-padding-top: 60px;
+}
+
+/* Responsive Admin Toolbar */
+@media (max-width: 992px) {
+    .admin-badge {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+    }
+
+    .toolbar-btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    #admin-toolbar {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .toolbar-content {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .toolbar-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .toolbar-btn {
+        flex: 1;
+    }
+}

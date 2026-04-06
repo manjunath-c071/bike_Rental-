@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment History - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-history-header {
+        margin-bottom: 30px;
+    }
+    
+    .filters-section {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .payment-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    
+    .payment-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .payment-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .payment-amount {
+        font-size: 24px;
+        font-weight: bold;
+        color: #27ae60;
+    }
+    
+    .payment-status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-processing {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-refunded {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+    
+    .payment-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        font-size: 14px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .info-label {
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        font-weight: bold;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .payment-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px;">
+    <div class="payment-history-header">
+        <h2 class="mb-2">Payment History</h2>
+        <p class="text-muted">View all your payments and transactions</p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <label for="status-filter" class="form-label">Filter by Status</label>
+                <select class="form-select" id="status-filter" name="status" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for status_code, status_name in payment_statuses %}
+                    <option value="{{ status_code }}" {% if status_filter == status_code %}selected{% endif %}>
+                        {{ status_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Payments List -->
+    {% if payments %}
+        <div class="payments-list">
+            {% for payment in payments %}
+            <div class="payment-card">
+                <div class="payment-card-header">
+                    <div>
+                        <div class="payment-amount">₹{{ payment.amount|floatformat:2 }}</div>
+                        <small class="text-muted">Booking #{{ payment.booking.id }}</small>
+                    </div>
+                    <span class="payment-status-badge status-{{ payment.status }}">
+                        {{ payment.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="payment-info">
+                    <div class="info-row">
+                        <span class="info-label">Transaction ID:</span>
+                        <span class="info-value">{{ payment.transaction_id }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Payment Method:</span>
+                        <span class="info-value">{{ payment.get_payment_method_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Bike:</span>
+                        <span class="info-value">{{ payment.booking.bike.name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Date:</span>
+                        <span class="info-value">{{ payment.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% if payment.completed_at %}
+                    <div class="info-row">
+                        <span class="info-label">Completed:</span>
+                        <span class="info-value">{{ payment.completed_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="info-row">
+                        <span class="info-label">Location:</span>
+                        <span class="info-value">{{ payment.booking.bike.location.name }}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-3 pt-3 border-top">
+                    <a href="{% url 'bookings:booking_detail' payment.booking.id %}" class="btn btn-sm btn-outline-primary">
+                        View Booking Details
+                    </a>
+                    {% if payment.is_pending %}
+                    <a href="{% url 'payments:retry_payment' payment.booking.id %}" class="btn btn-sm btn-warning">
+                        Retry Payment
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">💳</div>
+            <h4>No Payments Yet</h4>
+            <p class="text-muted">You haven't made any payments yet. Start by booking a bike!</p>
+            <a href="{% url 'bikes:bike_list' %}" class="btn btn-primary mt-3">Browse Bikes</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

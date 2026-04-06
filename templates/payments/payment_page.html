@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment - RideNova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-container {
+        max-width: 600px;
+        margin: 40px auto;
+    }
+    
+    .payment-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 30px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .booking-summary {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 30px;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: 14px;
+    }
+    
+    .summary-row.total {
+        font-weight: bold;
+        font-size: 18px;
+        color: #27ae60;
+        border-top: 2px solid #ddd;
+        padding-top: 10px;
+        margin-top: 15px;
+    }
+    
+    .payment-methods {
+        margin: 30px 0;
+    }
+    
+    .payment-method-option {
+        padding: 15px;
+        margin: 10px 0;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .payment-method-option:hover {
+        border-color: #3498db;
+        background: #f0f8ff;
+    }
+    
+    .payment-method-option input[type="radio"] {
+        margin-right: 10px;
+    }
+    
+    .payment-method-option.selected {
+        border-color: #27ae60;
+        background: #f0fff4;
+    }
+    
+    .payment-status {
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .status-processing {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+    }
+    
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+    
+    .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .spinner-border {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .payment-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .payment-btn:hover {
+        background: #229954;
+    }
+    
+    .payment-btn:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <h2 class="mb-4">Complete Payment</h2>
+    
+    <div class="payment-card">
+        <!-- Booking Summary -->
+        <h5 class="mb-3">Booking Summary</h5>
+        <div class="booking-summary">
+            <div class="summary-row">
+                <span>Bike:</span>
+                <strong>{{ booking.bike.name }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Location:</span>
+                <strong>{{ booking.bike.location.name }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Start Time:</span>
+                <span>{{ booking.start_date|date:"M d, Y H:i" }}</span>
+            </div>
+            <div class="summary-row">
+                <span>End Time:</span>
+                <span>{{ booking.end_date|date:"M d, Y H:i" }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Duration:</span>
+                <span>{{ booking.total_hours|floatformat:1 }} hours</span>
+            </div>
+            <div class="summary-row">
+                <span>Hourly Rate:</span>
+                <span>₹{{ booking.hourly_rate|floatformat:2 }}</span>
+            </div>
+            {% if booking.insurance_opted %}
+            <div class="summary-row">
+                <span>Insurance:</span>
+                <span>✓ Included</span>
+            </div>
+            {% endif %}
+            <div class="summary-row total">
+                <span>Total Amount:</span>
+                <span>₹{{ amount|floatformat:2 }}</span>
+            </div>
+        </div>
+        
+        <!-- Payment Status (if payment already exists) -->
+        {% if payment %}
+        <div class="alert alert-info mb-4">
+            <strong>Payment Status:</strong> {{ payment.get_status_display|upper }}
+            {% if payment.transaction_id %}
+            <br><small>Transaction ID: {{ payment.transaction_id }}</small>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Payment Method Selection -->
+        <h5 class="mb-3">Select Payment Method</h5>
+        <div class="payment-methods">
+            {% for method_code, method_name in payment_methods %}
+            <label class="payment-method-option" data-method="{{ method_code }}">
+                <input type="radio" name="payment_method" value="{{ method_code }}" 
+                       {% if forloop.first %}checked{% endif %}>
+                <span>{{ method_name }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <!-- Payment Button -->
+        <button class="payment-btn" id="pay-btn" onclick="processPayment()">
+            Pay ₹{{ amount|floatformat:2 }}
+        </button>
+        
+        <p class="text-center mt-3 text-muted small">
+            Secure payment powered by RideNova Payment Gateway
+        </p>
+    </div>
+</div>
+
+<!-- Modals and Scripts -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Processing Payment...</h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p>Please wait while we process your payment...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const bookingId = {{ booking.id }};
+const csrfToken = '{{ csrf_token }}';
+
+// Handle payment method selection
+document.querySelectorAll('.payment-method-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.payment-method-option').forEach(o => {
+            o.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        this.querySelector('input').checked = true;
+    });
+});
+
+// Mark first option as selected
+document.querySelector('.payment-method-option').classList.add('selected');
+
+function processPayment() {
+    const payBtn = document.getElementById('pay-btn');
+    const method = document.querySelector('input[name="payment_method"]:checked').value;
+    const amount = {{ amount|floatformat:2 }};
+    
+    // Show processing modal
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    paymentModal.show();
+    payBtn.disabled = true;
+    
+    // Send payment request
+    fetch(`/payments/booking/${bookingId}/process/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({
+            payment_method: method,
+            amount: amount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        paymentModal.hide();
+        
+        if (data.success) {
+            // Payment successful
+            showSuccessMessage(data);
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 2000);
+        } else {
+            // Payment failed
+            showErrorMessage(data.error);
+            payBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        paymentModal.hide();
+        showErrorMessage('Network error: ' + error);
+        payBtn.disabled = false;
+    });
+}
+
+function showSuccessMessage(data) {
+    const container = document.querySelector('.payment-container');
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+    alert.innerHTML = `
+        <strong>Success!</strong> ${data.message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.insertBefore(alert, container.firstChild);
+}
+
+function showErrorMessage(error) {
+    const container = document.querySelector('.payment-container');
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+    alert.innerHTML = `
+        <strong>Error!</strong> ${error}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.insertBefore(alert, container.firstChild);
+}
+</script>
+{% endblock %}

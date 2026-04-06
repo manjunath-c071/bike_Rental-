@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Locations - RideNova Admin{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-map-marker-alt"></i> Manage Locations
+        </h1>
+        <div>
+            <a href="{% url 'admin_dashboard:location_create' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Location
+            </a>
+            <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Location name or description..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Locations</option>
+                        <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <small class="text-muted">Showing <strong>{{ locations|length }}</strong> total locations</small>
+        </div>
+    </div>
+
+    <!-- Locations Grid -->
+    {% if locations %}
+        <div class="row">
+            {% for location in locations %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 {% if not location.is_active %}opacity-50{% endif %}">
+                        {% if location.image %}
+                            <img src="{{ location.image.url }}" class="card-img-top" alt="{{ location.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px; font-size: 4rem;">
+                                {{ location.icon }}
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ location.name }}
+                                {% if not location.is_active %}
+                                    <span class="badge badge-secondary">Inactive</span>
+                                {% endif %}
+                            </h5>
+                            <p class="card-text text-muted">{{ location.description|default:"No description" }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-bicycle"></i> {{ location.bikes.count }} bikes
+                                </small>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'admin_dashboard:location_edit' location.id %}" class="btn btn-outline-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'admin_dashboard:location_toggle' location.id %}" class="btn btn-outline-warning" title="{% if location.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                        <i class="fas fa-{% if location.is_active %}eye-slash{% else %}eye{% endif %}"></i>
+                                    </a>
+                                    <a href="{% url 'admin_dashboard:location_delete' location.id %}" class="btn btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> No locations found. <a href="{% url 'admin_dashboard:location_create' %}">Create a new location</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

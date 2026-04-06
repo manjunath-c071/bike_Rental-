@@ -1,0 +1,206 @@
+<!-- Location Selection Modal -->
+<div class="modal fade" id="locationModal" tabindex="-1" role="dialog" aria-labelledby="locationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%); color: white; border: none;">
+                <h5 class="modal-title" id="locationModalLabel">
+                    <i class="fas fa-map-marker-alt"></i> Select Your Location
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" style="color: white; opacity: 0.8;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                <div id="citiesGrid" class="row g-3">
+                    <!-- Cities will be loaded here by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer" style="background-color: #f8f9fa; border-top: 1px solid #dee2e6;">
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> Select a city to find bikes near you
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .city-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .city-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-color: #FF6B6B;
+    }
+
+    .city-card.active {
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    .city-icon {
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+
+    .city-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .city-description {
+        font-size: 0.85rem;
+        opacity: 0.7;
+    }
+
+    .city-card.active .city-description {
+        opacity: 0.95;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load cities when modal is shown
+    const locationModal = document.getElementById('locationModal');
+    if (locationModal) {
+        $(locationModal).on('show.bs.modal', function() {
+            loadCities();
+        });
+    }
+
+    // Location trigger buttons
+    const locationTriggers = document.querySelectorAll('[data-toggle="location-modal"]');
+    locationTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            $('#locationModal').modal('show');
+        });
+    });
+});
+
+function loadCities() {
+    const citiesGrid = document.getElementById('citiesGrid');
+    citiesGrid.innerHTML = '<div class="col-12"><div class="text-center"><div class="spinner-border" role="status"></div></div></div>';
+
+    fetch('{% url "get_cities" %}')
+        .then(response => response.json())
+        .then(data => {
+            citiesGrid.innerHTML = '';
+            const selectedCity = sessionStorage.getItem('selected_city') || data.selected_city;
+
+            data.cities.forEach(city => {
+                const isActive = city.name === selectedCity;
+                const cityCard = document.createElement('div');
+                cityCard.className = 'col-md-4 col-sm-6';
+                cityCard.innerHTML = `
+                    <div class="city-card ${isActive ? 'active' : ''}" onclick="selectCity('${city.name}')">
+                        <div class="city-icon">${city.icon}</div>
+                        <div class="city-name">${city.name}</div>
+                        <div class="city-description">${city.description}</div>
+                    </div>
+                `;
+                citiesGrid.appendChild(cityCard);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading cities:', error);
+            citiesGrid.innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading cities</div></div>';
+        });
+}
+
+function selectCity(city) {
+    // Send to server
+    const formData = new FormData();
+    formData.append('city', city);
+
+    fetch('{% url "set_city" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Store in session storage for immediate use
+            sessionStorage.setItem('selected_city', city);
+
+            // Update UI
+            updateLocationUI(city);
+
+            // Close modal
+            $('#locationModal').modal('hide');
+
+            // Show toast/feedback
+            showLocationNotification(city);
+        }
+    })
+    .catch(error => console.error('Error selecting city:', error));
+}
+
+function updateLocationUI(city) {
+    // Update navbar city display
+    const locationDisplay = document.getElementById('selectedCityDisplay');
+    if (locationDisplay) {
+        locationDisplay.textContent = city;
+        locationDisplay.style.animation = 'slideIn 0.3s ease';
+    }
+
+    // Update search form if present
+    const citySelect = document.querySelector('select[name="city"]');
+    if (citySelect) {
+        citySelect.value = city;
+    }
+}
+
+function showLocationNotification(city) {
+    // Create and show a toast notification
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        <div class="toast-body" style="background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%); color: white; border-radius: 8px; padding: 15px;">
+            <i class="fas fa-check-circle"></i> Location changed to <strong>${city}</strong>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.3s ease';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: slideX(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
