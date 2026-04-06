@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from datetime import datetime
+from decimal import Decimal
 from .models import Booking
 from .forms import BookingForm
 from bikes.models import Bike
@@ -106,7 +107,7 @@ def calculate_price_view(request):
         end_date = datetime.fromisoformat(end_date_str)
         
         # Calculate duration
-        duration = (end_date - start_date).total_seconds() / 3600
+        duration = Decimal(str((end_date - start_date).total_seconds() / 3600))
         
         if duration <= 0:
             return JsonResponse({
@@ -115,9 +116,9 @@ def calculate_price_view(request):
             }, status=400)
         
         # Calculate cost
-        hourly_rate = float(bike.rental_price_hourly)
+        hourly_rate = bike.rental_price_hourly
         rental_cost = hourly_rate * duration
-        insurance_amount = rental_cost * 0.05 if insurance else 0
+        insurance_amount = rental_cost * Decimal('0.05') if insurance else 0
         total_cost = rental_cost + insurance_amount
         
         return JsonResponse({

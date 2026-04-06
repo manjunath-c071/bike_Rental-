@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from bikes.models import Bike
 from django.utils import timezone
+from decimal import Decimal
 
 class Booking(models.Model):
     """Booking model for bike rentals"""
@@ -67,14 +68,14 @@ class Booking(models.Model):
     def calculate_cost(self):
         """Calculate booking cost"""
         if self.start_date and self.end_date:
-            duration = (self.end_date - self.start_date).total_seconds() / 3600
+            duration = Decimal(str((self.end_date - self.start_date).total_seconds() / 3600))
             self.total_hours = duration
             self.hourly_rate = self.bike.rental_price_hourly
             self.total_cost = self.hourly_rate * duration
             
             if self.insurance_opted:
                 # Insurance is typically 5% of rental cost
-                self.insurance_amount = self.total_cost * 0.05
+                self.insurance_amount = self.total_cost * Decimal('0.05')
                 self.total_cost += self.insurance_amount
             
             return self.total_cost

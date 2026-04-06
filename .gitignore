@@ -55,5 +55,6 @@ local_settings.py
 .ipynb_checkpoints
 
 *.md
-!README.md
+README.md
+.txt
 
